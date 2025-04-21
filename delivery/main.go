@@ -16,10 +16,12 @@ import (
 )
 
 func main() {
-	// Load environment variables from .env file
-	err := godotenv.Load("./.env")
-	if err != nil {
-		log.Fatalf("Error loading .env file: %v", err)
+	// Only load .env if running locally
+	if os.Getenv("RENDER") == "" {
+		err := godotenv.Load("./.env")
+		if err != nil {
+			log.Fatalf("Error loading .env file: %v", err)
+		}
 	}
 
 	// Get MongoDB URI from the environment variables
