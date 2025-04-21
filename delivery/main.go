@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"github.com/shaloms4/Pass-Me-Core-Functionality/delivery/controllers"
@@ -55,8 +56,16 @@ func main() {
 	// Set up the Gin router
 	r := gin.Default()
 
+	// Apply CORS middleware
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"*"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+	}))
+
 	// Set up the routes
-	// Each router file handles its own route setup
 	routers.SetupUserRoutes(r, userController)
 	routers.SetupFlightRoutes(r, flightController)
 
