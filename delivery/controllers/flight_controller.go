@@ -29,7 +29,7 @@ func (fc *FlightController) CreateFlight(c *gin.Context) {
 	}
 
 	// Validate required fields
-	if flight.Title == "" || flight.FromCountry == "" || flight.ToCountry == "" {
+	if flight.Title == "" || flight.FromCountry == "" || flight.ToCountry == "" || flight.Language == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Missing required flight fields"})
 		return
 	}
@@ -93,7 +93,8 @@ func (fc *FlightController) GetFlightByID(c *gin.Context) {
 		"to_country":   flight.ToCountry,
 		"date":         flight.Date,
 		"user_id":      flight.UserID,
-		"qa":           flight.QA, 
+		"language":     flight.Language, // <- Added language field in the response
+		"qa":           flight.QA,
 	})
 }
 
@@ -112,7 +113,22 @@ func (fc *FlightController) GetUserFlights(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, flights)
+	// Send the language field as part of each flight
+	var flightResponses []gin.H
+	for _, flight := range flights {
+		flightResponses = append(flightResponses, gin.H{
+			"id":           flight.ID,
+			"title":        flight.Title,
+			"from_country": flight.FromCountry,
+			"to_country":   flight.ToCountry,
+			"date":         flight.Date,
+			"user_id":      flight.UserID,
+			"language":     flight.Language, 
+			"qa":           flight.QA,
+		})
+	}
+
+	c.JSON(http.StatusOK, flightResponses)
 }
 
 // DeleteFlight handles the deletion of a flight by its ID

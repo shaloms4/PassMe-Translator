@@ -31,6 +31,11 @@ func (r *flightRepository) CreateFlight(flight *domain.Flight) error {
 		flight.ID = primitive.NewObjectID().Hex()
 	}
 
+	// Make sure the 'Language' field is set (can be validated earlier in the controller if needed)
+	if flight.Language == "" {
+		flight.Language = "English" // Set a default language if not provided
+	}
+
 	result, err := r.collection.InsertOne(context.Background(), flight)
 	if err != nil {
 		return err

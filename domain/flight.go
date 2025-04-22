@@ -17,6 +17,7 @@ type Flight struct {
 	ToCountry   string    `bson:"to_country" json:"to_country"`
 	Date        time.Time `bson:"date" json:"date"`
 	UserID      string    `bson:"user_id" json:"user_id"`
+	Language    string    `bson:"language" json:"language"`
 	QA          []QA      `bson:"qa" json:"qa"`
 }
 
