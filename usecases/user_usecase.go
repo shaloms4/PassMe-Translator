@@ -11,6 +11,9 @@ import (
 type UserUseCase interface {
 	RegisterUser(user *domain.User) error
 	LoginUser(email, password string) (*domain.User, error)
+	GetProfile(userID string) (*domain.User, error)
+	UpdateUsername(userID, newUsername string) error
+	UpdatePassword(userID, oldPassword, newPassword string) error
 }
 
 // userUseCase implements the UserUseCase interface
@@ -65,4 +68,29 @@ func (uc *userUseCase) LoginUser(email, password string) (*domain.User, error) {
 	}
 
 	return user, nil
-} 
+}
+
+func (uc *userUseCase) GetProfile(userID string) (*domain.User, error) {
+	return uc.userRepo.FindUserByID(userID)
+}
+
+func (uc *userUseCase) UpdateUsername(userID, newUsername string) error {
+	existingUser, _ := uc.userRepo.FindUserByUsername(newUsername)
+	if existingUser != nil {
+		return errors.New("username already taken")
+	}
+	return uc.userRepo.UpdateUsername(userID, newUsername)
+}
+
+func (uc *userUseCase) UpdatePassword(userID, oldPassword, newPassword string) error {
+	user, err := uc.userRepo.FindUserByID(userID)
+	if err != nil {
+		return err
+	}
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(oldPassword))
+	if err != nil {
+		return errors.New("incorrect old password")
+	}
+	hashed, _ := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
+	return uc.userRepo.UpdatePassword(userID, string(hashed))
+}

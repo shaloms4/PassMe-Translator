@@ -5,8 +5,8 @@ import (
 	"fmt"
 
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 
 	domain "github.com/shaloms4/Pass-Me-Core-Functionality/domain"
 )
@@ -62,4 +62,45 @@ func (r *userRepository) FindUserByUsername(username string) (*domain.User, erro
 		return nil, err
 	}
 	return &user, nil
+}
+
+// repositories/user_repository.go
+
+func (r *userRepository) FindUserByID(id string) (*domain.User, error) {
+	objID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return nil, err
+	}
+	var user domain.User
+	err = r.collection.FindOne(context.Background(), bson.M{"_id": objID}).Decode(&user)
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
+}
+
+func (r *userRepository) UpdateUsername(id, newUsername string) error {
+	objID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return err
+	}
+	_, err = r.collection.UpdateOne(
+		context.Background(),
+		bson.M{"_id": objID},
+		bson.M{"$set": bson.M{"username": newUsername}},
+	)
+	return err
+}
+
+func (r *userRepository) UpdatePassword(id, hashedPassword string) error {
+	objID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return err
+	}
+	_, err = r.collection.UpdateOne(
+		context.Background(),
+		bson.M{"_id": objID},
+		bson.M{"$set": bson.M{"password": hashedPassword}},
+	)
+	return err
 }
